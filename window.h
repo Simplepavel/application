@@ -10,7 +10,7 @@
 
 
 #include <QFont>
-
+#include <QKeySequence>
 
 
 class Window: public QWidget
@@ -30,7 +30,13 @@ class Window: public QWidget
 
 
     QVBoxLayout* right_box;
+
+    QLabel* FileName;
+    
+    
     QPlainTextEdit* contains;
+    QPushButton* add_bttn;
+    QPushButton* save_bttn;
 
 
 

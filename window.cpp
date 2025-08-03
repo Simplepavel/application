@@ -7,7 +7,6 @@ Window::Window(QWidget* parent): QWidget(parent)
 
     left_box = new QVBoxLayout();
 
-
     search = new QLineEdit(this);
     search->setPlaceholderText("Поиск");
     
@@ -35,20 +34,35 @@ Window::Window(QWidget* parent): QWidget(parent)
     left_box->addLayout(left_inner2, 4);
 
  
-
-
-
     right_box = new QVBoxLayout();
+    FileName = new QLabel("Заголовок", this);
+    FileName->setAlignment(Qt::AlignCenter);
+    QFont FileName_font = FileName->font();
+    FileName_font.setPointSize(11);
+    FileName->setFont(FileName_font);
+
+
+    right_box->addWidget(FileName);
+
     contains = new QPlainTextEdit(this);
-
-
     QFont contains_font = contains->font();
     contains_font.setPointSize(24);
-    contains->setFont(contains_font);
-    
-    
-    right_box->addWidget(contains);
+    contains->setFont(contains_font);    
+    right_box->addWidget(contains, 17);
 
+
+    add_bttn = new QPushButton("Добавить(Ctrl+P)", this);
+    QKeySequence seq1(Qt::CTRL | Qt::Key_P);
+    add_bttn->setShortcut(seq1);
+    right_box->addWidget(add_bttn, 0, Qt::AlignTop | Qt::AlignLeft);
+     
+
+
+    save_bttn = new QPushButton("Сохранить(Ctrl+S)", this);
+    QKeySequence seq2(Qt::CTRL | Qt::Key_S);
+    save_bttn->setShortcut(seq2);
+    right_box->addWidget(save_bttn, 1, Qt::AlignTop | Qt::AlignLeft);
+    
     main_layout->addLayout(left_box, 1);
     main_layout->addLayout(right_box, 3);
 
