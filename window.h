@@ -6,45 +6,51 @@
 #include <QPlainTextEdit>
 #include <QLabel>
 #include <QRadioButton>
-
-
+#include <QScrollArea>
 
 #include <QFont>
 #include <QKeySequence>
 
+#include "MyLineEdit.h"
+#include <QFocusEvent>
+#include <QDebug>
 
-class Window: public QWidget
+class Window : public QWidget
 {
     Q_OBJECT
-    private:
-    QHBoxLayout* main_layout;
+private slots:
+    void add_bttn_slot();
 
-    QVBoxLayout* left_box;
-    QLineEdit* search;
-    QVBoxLayout* left_inner1;
-    QVBoxLayout* left_inner2;
-    QLabel* sorters_mode;
-    QRadioButton* by_create;
-    QRadioButton* by_name;
-    QRadioButton* by_change;
+private:
+    QHBoxLayout *main_layout;
+
+    QVBoxLayout *left_box;
+    QLineEdit *search;
 
 
-    QVBoxLayout* right_box;
+    QVBoxLayout *left_inner1;
+    QWidget* left_inner_widget;
 
-    QLabel* FileName;
-    
-    
-    QPlainTextEdit* contains;
-    QPushButton* add_bttn;
-    QPushButton* save_bttn;
+    QVBoxLayout *left_inner2;
+    QLabel *sorters_mode;
+    QRadioButton *by_create;
+    QRadioButton *by_name;
+    QRadioButton *by_change;
+
+    QVBoxLayout *right_box;
+
+    MyLineEdit *FileName;
+
+    QPlainTextEdit *contains;
+    QPushButton *add_bttn;
+    QPushButton *save_bttn;
 
 
 
-    QWidget* delete_me;
+    QScrollArea *scrollArea;
 
-
-
-    public:
-    Window(QWidget* parent = nullptr);
+public:
+    Window(QWidget *parent = nullptr);
     ~Window();
+    void connect();
 };
