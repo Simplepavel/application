@@ -9,17 +9,13 @@ Window::Window(QWidget *parent) : QWidget(parent)
     search = new QLineEdit(this);
     search->setPlaceholderText("Поиск");
 
-
-
-
     scrollArea = new QScrollArea(this);
     scrollArea->setWidgetResizable(true);
 
-    
-
     left_inner_widget = new QWidget(this);
-    // left_inner_widget->setStyleSheet("background-color: rgb(255, 0, 120);");
     left_inner1 = new QVBoxLayout(left_inner_widget);
+    left_inner1->setSpacing(0);
+    left_inner1->setAlignment(Qt::AlignTop);
     scrollArea->setWidget(left_inner_widget);
 
 
@@ -70,10 +66,7 @@ Window::Window(QWidget *parent) : QWidget(parent)
     main_layout->addLayout(left_box, 1);
     main_layout->addLayout(right_box, 3);
 
-
-
     setLayout(main_layout);
-
 }
 
 void Window::connect()
@@ -84,7 +77,9 @@ void Window::connect()
 void Window::add_bttn_slot()
 {
     QPushButton *bttn = new QPushButton("Untitled", this);
-    left_inner1->addWidget(bttn);
+    // bttn->setStyleSheet("background-color: rgb(255, 0, 25);");
+    bttn->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Fixed);
+    left_inner1->addWidget(bttn, 0, Qt::AlignTop);
 }
 
 Window::~Window() {};

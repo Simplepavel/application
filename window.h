@@ -14,6 +14,7 @@
 #include "MyLineEdit.h"
 #include <QFocusEvent>
 #include <QDebug>
+#include <QSizePolicy>
 
 class Window : public QWidget
 {
