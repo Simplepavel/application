@@ -38,7 +38,9 @@ Window::Window(QWidget *parent) : QWidget(parent)
     left_box->addLayout(left_inner2, 4);
 
     right_box = new QVBoxLayout();
-    FileName = new MyLineEdit("Untitled", this);
+    right_box->setAlignment(Qt::AlignBottom | Qt::AlignLeft);
+    right_box->setContentsMargins(-1, -1, -1, 40);
+    FileName = new MyLineEdit("", this);
     FileName->setStyleSheet("QLineEdit { background: transparent; border: none; }");
     FileName->setAlignment(Qt::AlignCenter);
     QFont FileName_font = FileName->font();
@@ -56,12 +58,12 @@ Window::Window(QWidget *parent) : QWidget(parent)
     add_bttn = new QPushButton("Добавить(Ctrl+P)", this);
     QKeySequence seq1(Qt::CTRL | Qt::Key_P);
     add_bttn->setShortcut(seq1);
-    right_box->addWidget(add_bttn, 0, Qt::AlignTop | Qt::AlignLeft);
+    right_box->addWidget(add_bttn);
 
     save_bttn = new QPushButton("Сохранить(Ctrl+S)", this);
     QKeySequence seq2(Qt::CTRL | Qt::Key_S);
     save_bttn->setShortcut(seq2);
-    right_box->addWidget(save_bttn, 1, Qt::AlignTop | Qt::AlignLeft);
+    right_box->addWidget(save_bttn);
 
     main_layout->addLayout(left_box, 1);
     main_layout->addLayout(right_box, 3);
@@ -76,9 +78,9 @@ void Window::connect()
 
 void Window::add_bttn_slot()
 {
-    QPushButton *bttn = new QPushButton("Untitled", this);
-    // bttn->setStyleSheet("background-color: rgb(255, 0, 25);");
+    MyPushButton *bttn = new MyPushButton("Untitled", this);
     bttn->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Fixed);
+    // bttn->insert(*contains, *FileName);
     left_inner1->addWidget(bttn, 0, Qt::AlignTop);
 }
 

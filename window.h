@@ -12,6 +12,7 @@
 #include <QKeySequence>
 
 #include "MyLineEdit.h"
+#include "MyPushButton.h"
 #include <QFocusEvent>
 #include <QDebug>
 #include <QSizePolicy>
