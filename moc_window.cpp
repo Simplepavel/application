@@ -40,12 +40,18 @@ template <> constexpr inline auto Window::qt_create_metaobjectdata<qt_meta_tag_Z
     QtMocHelpers::StringRefStorage qt_stringData {
         "Window",
         "add_bttn_slot",
-        ""
+        "",
+        "save_slot",
+        "delete_slot"
     };
 
     QtMocHelpers::UintData qt_methods {
         // Slot 'add_bttn_slot'
         QtMocHelpers::SlotData<void()>(1, 2, QMC::AccessPrivate, QMetaType::Void),
+        // Slot 'save_slot'
+        QtMocHelpers::SlotData<void()>(3, 2, QMC::AccessPrivate, QMetaType::Void),
+        // Slot 'delete_slot'
+        QtMocHelpers::SlotData<void()>(4, 2, QMC::AccessPrivate, QMetaType::Void),
     };
     QtMocHelpers::UintData qt_properties {
     };
@@ -70,6 +76,8 @@ void Window::qt_static_metacall(QObject *_o, QMetaObject::Call _c, int _id, void
     if (_c == QMetaObject::InvokeMetaMethod) {
         switch (_id) {
         case 0: _t->add_bttn_slot(); break;
+        case 1: _t->save_slot(); break;
+        case 2: _t->delete_slot(); break;
         default: ;
         }
     }
@@ -95,14 +103,14 @@ int Window::qt_metacall(QMetaObject::Call _c, int _id, void **_a)
     if (_id < 0)
         return _id;
     if (_c == QMetaObject::InvokeMetaMethod) {
-        if (_id < 1)
+        if (_id < 3)
             qt_static_metacall(this, _c, _id, _a);
-        _id -= 1;
+        _id -= 3;
     }
     if (_c == QMetaObject::RegisterMethodArgumentMetaType) {
-        if (_id < 1)
+        if (_id < 3)
             *reinterpret_cast<QMetaType *>(_a[0]) = QMetaType();
-        _id -= 1;
+        _id -= 3;
     }
     return _id;
 }

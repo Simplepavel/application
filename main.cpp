@@ -3,8 +3,9 @@
 
 int main(int argc, char* argv[])
 {
+    DB dataBase;
     QApplication app(argc, argv);
-    Window window;
+    Window window(&dataBase);
     window.connect();
     window.showMaximized();
     return app.exec();

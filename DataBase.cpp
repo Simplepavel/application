@@ -1,5 +1,15 @@
 #include "DataBase.h"
 
+
+DB::~DB()
+{
+    for (const auto& kv: storage)
+    {
+        delete storage[kv.first];
+        storage.erase(kv.first);
+    }
+}
+
 int DB::get_idx()
 {
     if (indices.empty())
@@ -9,34 +19,43 @@ int DB::get_idx()
     return result;
 }
 
-DB::elem &DB::get(int idx)
+elem &DB::get(int idx)
 {
     if (storage.count(idx))
         return *storage[idx];
     throw "Unknow index"; // поменять на нормальный класс исключений
 }
 
+
+
 void DB::del(int idx)
 {
-    bool result = storage.erase(idx);
-    if (result)
+    if (storage.count(idx))
         indices.push(idx);
+        delete storage[idx];
+        storage.erase(idx);
+        --size;
 }
 
-void DB::add(const elem &value)
+int DB::add(elem* value)
 {
     int new_idx = get_idx();
-    storage[new_idx] = new elem(value);
+    storage[new_idx] = value;
     ++size;
+    return new_idx;
 }
 
 void DB::sort(sort_ways ways)
 {
     std::vector<elem *> copy;
+    std::vector<int> keys;
     copy.reserve(size);
+    keys.reserve(size);
     for (const auto &kv : storage)
+    {
+        keys.push_back(kv.first);
         copy.push_back(kv.second);
-
+    }
     bool (*compainer)(const elem &, const elem &);
     switch (ways)
     {
@@ -59,6 +78,10 @@ void DB::sort(sort_ways ways)
     for (int i = copy.size() - 1; i >= 0; --i)
     {
         deep(copy, 0, i, compainer);
+    }
+    for (int j = 0; j < copy.size(); ++j)
+    {
+        storage[keys[j]] = copy[j];
     }
 }
 
@@ -91,17 +114,17 @@ void DB::deep(std::vector<elem *> mass, int idx, int end, bool (*cmp)(const elem
     }
 }
 
-bool greater_by_name(const DB::elem &argv1, const DB::elem &argv2)
+bool greater_by_name(const elem &argv1, const elem &argv2)
 {
     return argv1.name > argv2.name;
 }
 
-bool greater_by_create(const DB::elem &argv1, const DB::elem &argv2)
+bool greater_by_create(const elem &argv1, const elem &argv2)
 {
     return argv1.date_create > argv2.date_create;
 }
 
-bool greater_by_change(const DB::elem &argv1, const DB::elem &argv2)
+bool greater_by_change(const elem &argv1, const elem &argv2)
 {
     return argv1.date_change > argv2.date_change;
 }
