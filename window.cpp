@@ -1,6 +1,6 @@
 #include "window.h"
 
-Window::Window(DB *data_dase, QWidget *parent) : QWidget(parent), db(data_dase), file_id(-1)
+Window::Window(DB *data_dase, QWidget *parent) : QWidget(parent), db(data_dase), file_id(-1), current_save(true)
 {
     sequence_bttn.push_back(file_id);
     main_layout = new QHBoxLayout(this);
@@ -82,6 +82,7 @@ void Window::connect()
     QObject::connect(add_bttn, SIGNAL(clicked()), this, SLOT(add_bttn_slot()));
     QObject::connect(save_bttn, SIGNAL(clicked()), this, SLOT(save_slot()));
     QObject::connect(delete_bttn, SIGNAL(clicked()), this, SLOT(delete_slot()));
+    // QObject::connect(contains, &QPlainTextEdit::textChanged, [this](){this->current_save = false; db->get(file_id)});
 }
 
 void Window::add_bttn_slot()
@@ -122,7 +123,6 @@ void Window::save_slot()
 
 void Window::open_slot(int push_bttn_idx)
 {
-
     if (contains->isHidden())
     {
         contains->show();
@@ -140,25 +140,8 @@ void Window::delete_slot() // Добавить вы действительно �
         warning("Создайте или выберите заметку для удаления");
         return;
     }
-    QDialog dialog(this);
-    dialog.setModal(true);
-    QLabel lbl("Вы действительно хотите удалить заметку?");
-    QPushButton ok("Ок", this);
-    QPushButton cancel("Отмена", this);
-
-    QObject::connect(&ok, &QPushButton::clicked, &dialog, &QDialog::accept);
-    QObject::connect(&cancel, &QPushButton::clicked, &dialog, &QDialog::reject);
-    QVBoxLayout box;
-    box.addWidget(&lbl);
-    QHBoxLayout inner;
-    inner.addWidget(&ok);
-    inner.addWidget(&cancel);
-
-    box.addWidget(&lbl);
-    box.addLayout(&inner);
-    dialog.setLayout(&box);
-
-    if (dialog.exec() == QDialog::Accepted)
+    
+    if (dialog_window("Вы действительно хотите удалить заметку?") == QDialog::Accepted)
     {
         QAbstractButton *bttn_to_delete = bttnGroup->button(file_id);
         bttn_to_delete->deleteLater();
@@ -222,6 +205,39 @@ void Window::warning(const QString &txt_warning)
     required.setLayout(&box);
     QObject::connect(&bttn, &QPushButton::clicked, &required, &QDialog::accept);
     required.exec();
+}
+
+int Window::dialog_window(const QString& txt) // сохрнаить заметку а еще удалить заметку и тп?
+{
+    QDialog* dialog = new QDialog(this);
+    dialog->setModal(true);
+    QLabel* lbl = new QLabel(txt, dialog);
+    QPushButton* ok = new QPushButton("Ок", dialog);
+    QPushButton* cancel = new QPushButton("Отмена", dialog);
+    QHBoxLayout* inner = new QHBoxLayout;
+    inner->addWidget(ok);
+    inner->addWidget(cancel);
+
+    QVBoxLayout* outer = new QVBoxLayout;
+
+    outer->addWidget(lbl);
+    outer->addLayout(inner);
+
+    dialog->setLayout(outer);
+
+    QObject::connect(ok, &QPushButton::clicked, dialog, &QDialog::accept);
+    QObject::connect(cancel, &QPushButton::clicked, dialog, &QDialog::reject);
+
+
+    return dialog->exec();
+}
+
+
+
+void Window::closeEvent(QCloseEvent* event)
+{
+    total_save();
+    event->accept();
 }
 
 Window::~Window() {};

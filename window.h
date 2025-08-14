@@ -8,7 +8,6 @@
 #include <QRadioButton>
 #include <QScrollArea>
 #include <QDialog>
-
 #include <QFont>
 #include <QKeySequence>
 #include <QFocusEvent>
@@ -16,6 +15,8 @@
 #include <QSizePolicy>
 #include <QButtonGroup>
 #include <List>
+#include <fstream>
+#include <QCloseEvent>
 
 #include "MyLineEdit.h"
 #include "MyPushButton.h"
@@ -56,14 +57,16 @@ private:
     QButtonGroup *bttnGroup;
     QScrollArea *scrollArea;
     int file_id;
+    bool current_save;
     std::list<int> sequence_bttn;
 
     void open_slot(int);
     QString get_file_name_widget();
     void warning(const QString&);
-
+    int dialog_window(const QString&);
 public:
     Window(DB *data_base, QWidget *parent = nullptr);
     ~Window();
     void connect();
+    void closeEvent(QCloseEvent* event) override;
 };
