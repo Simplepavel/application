@@ -2,6 +2,7 @@
 
 Window::Window(DB *data_dase, QWidget *parent) : QWidget(parent), db(data_dase), file_id(-1)
 {
+    sequence_bttn.push_back(file_id);
     main_layout = new QHBoxLayout(this);
     left_box = new QVBoxLayout();
 
@@ -37,7 +38,7 @@ Window::Window(DB *data_dase, QWidget *parent) : QWidget(parent), db(data_dase),
 
     right_box = new QVBoxLayout();
     right_box->setAlignment(Qt::AlignBottom | Qt::AlignLeft);
-    right_box->setContentsMargins(-1, -1, -1, 13);
+    right_box->setContentsMargins(-1, -1, -1, 12);
     FileName = new MyLineEdit("", this);
     FileName->setStyleSheet("QLineEdit { background: transparent; border: none; }");
     FileName->setAlignment(Qt::AlignCenter);
@@ -51,6 +52,7 @@ Window::Window(DB *data_dase, QWidget *parent) : QWidget(parent), db(data_dase),
     QFont contains_font = contains->font();
     contains_font.setPointSize(24);
     contains->setFont(contains_font);
+    contains->hide();
     right_box->addWidget(contains);
 
     add_bttn = new QPushButton("Добавить(Ctrl+P)", this);
@@ -79,11 +81,21 @@ void Window::connect()
 {
     QObject::connect(add_bttn, SIGNAL(clicked()), this, SLOT(add_bttn_slot()));
     QObject::connect(save_bttn, SIGNAL(clicked()), this, SLOT(save_slot()));
+    QObject::connect(delete_bttn, SIGNAL(clicked()), this, SLOT(delete_slot()));
 }
 
 void Window::add_bttn_slot()
 {
-    elem *new_elem = new elem(QTime::currentTime(), get_file_name_widget(), "");
+    QString result = get_file_name_widget();
+    if (result.isEmpty())
+    {
+        return;
+    }
+    if (contains->isHidden())
+    {
+        contains->show();
+    }
+    elem *new_elem = new elem(QTime::currentTime(), result, "");
     file_id = db->add(new_elem);
     MyPushButton *bttn = new MyPushButton(file_id, new_elem->name, this);
     QObject::connect(bttn, &QPushButton::clicked, this, [this, bttn]()
@@ -91,32 +103,88 @@ void Window::add_bttn_slot()
     left_inner1->addWidget(bttn);
     bttnGroup->addButton(bttn, file_id);
     FileName->setText(new_elem->name);
+    contains->clear();
+    sequence_bttn.push_back(file_id);
 }
 
 void Window::save_slot()
 {
-    elem &save_elem = db->get(file_id);
-    save_elem.contain = contains->toPlainText();
+    if (file_id == -1)
+    {
+        warning("Выберите заметку для сохранения");
+    }
+    else
+    {
+        elem &save_elem = db->get(file_id);
+        save_elem.contain = contains->toPlainText();
+    }
 }
 
 void Window::open_slot(int push_bttn_idx)
 {
+
+    if (contains->isHidden())
+    {
+        contains->show();
+    }
     elem &open_elem = db->get(push_bttn_idx);
     contains->setPlainText(open_elem.contain);
     FileName->setText(open_elem.name);
     file_id = push_bttn_idx;
 }
 
-void Window::delete_slot()
+void Window::delete_slot() // Добавить вы действительно хотите удлаить заметку?
 {
+    if (file_id == -1)
+    {
+        warning("Создайте или выберите заметку для удаления");
+        return;
+    }
+    QDialog dialog(this);
+    dialog.setModal(true);
+    QLabel lbl("Вы действительно хотите удалить заметку?");
+    QPushButton ok("Ок", this);
+    QPushButton cancel("Отмена", this);
+
+    QObject::connect(&ok, &QPushButton::clicked, &dialog, &QDialog::accept);
+    QObject::connect(&cancel, &QPushButton::clicked, &dialog, &QDialog::reject);
+    QVBoxLayout box;
+    box.addWidget(&lbl);
+    QHBoxLayout inner;
+    inner.addWidget(&ok);
+    inner.addWidget(&cancel);
+
+    box.addWidget(&lbl);
+    box.addLayout(&inner);
+    dialog.setLayout(&box);
+
+    if (dialog.exec() == QDialog::Accepted)
+    {
+        QAbstractButton *bttn_to_delete = bttnGroup->button(file_id);
+        bttn_to_delete->deleteLater();
+        left_inner1->removeWidget(bttn_to_delete);
+        bttnGroup->removeButton(bttn_to_delete);
+
+        sequence_bttn.remove(file_id);
+        file_id = *(--sequence_bttn.end());
+        if (file_id == -1)
+        {
+            FileName->clear();
+            contains->clear();
+            contains->hide();
+            return;
+        }
+        elem &content = db->get(file_id);
+        FileName->setText(content.name);
+        contains->setPlainText(content.contain);
+    }
 }
 
 QString Window::get_file_name_widget()
 {
     QDialog *window = new QDialog(this);
     window->setModal(true);
-
-    QLineEdit *line = new QLineEdit("Untitled", window);
+    QLineEdit *line = new QLineEdit("Без названия", window);
     line->setPlaceholderText("Введите название новой заметки");
 
     QVBoxLayout *outer = new QVBoxLayout;
@@ -136,8 +204,24 @@ QString Window::get_file_name_widget()
     QObject::connect(ok, &QPushButton::clicked, window, &QDialog::accept);
     QObject::connect(close, &QPushButton::clicked, window, &QDialog::reject);
 
-    window->exec();
-    return line->text();
+    if (window->exec() == QDialog::Accepted)
+        return line->text();
+    else
+        return "";
+}
+
+void Window::warning(const QString &txt_warning)
+{
+    QDialog required(this);
+    required.setModal(true);
+    QLabel label(txt_warning, this);
+    QPushButton bttn("Ок", this);
+    QVBoxLayout box;
+    box.addWidget(&label);
+    box.addWidget(&bttn);
+    required.setLayout(&box);
+    QObject::connect(&bttn, &QPushButton::clicked, &required, &QDialog::accept);
+    required.exec();
 }
 
 Window::~Window() {};
