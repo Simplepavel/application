@@ -6,7 +6,7 @@ files = main.cpp moc_window.cpp moc_PushButton.cpp MyPushButton.cpp moc_LineEdit
 
 
 all: moc
-	g++ $(files) $(includes) $(libs) -o main.exe
+	g++ $(files) $(includes) $(libs) -o main.exe -g
 
 moc:
 	rm -f moc_*.cpp

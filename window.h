@@ -62,11 +62,13 @@ private:
 
     void open_slot(int);
     QString get_file_name_widget();
-    void warning(const QString&);
-    int dialog_window(const QString&);
+    void warning(const QString &);
+    int dialog_window(const QString &);
+
 public:
     Window(DB *data_base, QWidget *parent = nullptr);
     ~Window();
     void connect();
-    void closeEvent(QCloseEvent* event) override;
+    void closeEvent(QCloseEvent *event) override;
+    void on_file_change();
 };

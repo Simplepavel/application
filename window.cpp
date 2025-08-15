@@ -82,11 +82,20 @@ void Window::connect()
     QObject::connect(add_bttn, SIGNAL(clicked()), this, SLOT(add_bttn_slot()));
     QObject::connect(save_bttn, SIGNAL(clicked()), this, SLOT(save_slot()));
     QObject::connect(delete_bttn, SIGNAL(clicked()), this, SLOT(delete_slot()));
-    // QObject::connect(contains, &QPlainTextEdit::textChanged, [this](){this->current_save = false; db->get(file_id)});
+    QObject::connect(contains, &QPlainTextEdit::textChanged, this, &Window::on_file_change);
 }
 
 void Window::add_bttn_slot()
 {
+    if (!current_save)
+    {
+        if (dialog_window("Сохранить текущие изменения?") == QDialog::Accepted) save_slot();
+        else
+        {
+            db->get(file_id).save = true;
+            QObject::connect(contains, &QPlainTextEdit::textChanged, this, &Window::on_file_change);
+        }
+    }
     QString result = get_file_name_widget();
     if (result.isEmpty())
     {
@@ -104,8 +113,11 @@ void Window::add_bttn_slot()
     left_inner1->addWidget(bttn);
     bttnGroup->addButton(bttn, file_id);
     FileName->setText(new_elem->name);
+    contains->blockSignals(true);
     contains->clear();
+    contains->blockSignals(false);
     sequence_bttn.push_back(file_id);
+    current_save = true;
 }
 
 void Window::save_slot()
@@ -118,19 +130,35 @@ void Window::save_slot()
     {
         elem &save_elem = db->get(file_id);
         save_elem.contain = contains->toPlainText();
+        current_save = true;
+        save_elem.save = true;
+        QObject::connect(contains, &QPlainTextEdit::textChanged, this, &Window::on_file_change);
     }
 }
 
 void Window::open_slot(int push_bttn_idx)
 {
+    elem &current_elem = db->get(file_id);
+    if (!current_save)
+    {
+        if (dialog_window("Сохранить текущие изменения?") == QDialog::Accepted) save_slot();
+        else 
+        {
+            current_elem.save = true;
+            QObject::connect(contains, &QPlainTextEdit::textChanged, this, &Window::on_file_change);
+        }
+    }
     if (contains->isHidden())
     {
         contains->show();
     }
     elem &open_elem = db->get(push_bttn_idx);
+    contains->blockSignals(true);
     contains->setPlainText(open_elem.contain);
+    contains->blockSignals(false);
     FileName->setText(open_elem.name);
     file_id = push_bttn_idx;
+    current_save = open_elem.save;
 }
 
 void Window::delete_slot() // Добавить вы действительно хотите удлаить заметку?
@@ -159,7 +187,9 @@ void Window::delete_slot() // Добавить вы действительно �
         }
         elem &content = db->get(file_id);
         FileName->setText(content.name);
+        contains->blockSignals(true);
         contains->setPlainText(content.contain);
+        contains->blockSignals(false);
     }
 }
 
@@ -228,7 +258,6 @@ int Window::dialog_window(const QString& txt) // сохрнаить заметк
     QObject::connect(ok, &QPushButton::clicked, dialog, &QDialog::accept);
     QObject::connect(cancel, &QPushButton::clicked, dialog, &QDialog::reject);
 
-
     return dialog->exec();
 }
 
@@ -236,8 +265,17 @@ int Window::dialog_window(const QString& txt) // сохрнаить заметк
 
 void Window::closeEvent(QCloseEvent* event)
 {
-    total_save();
+    // db->save();
     event->accept();
+}
+
+
+void Window::on_file_change()
+{
+    current_save = false;
+    db->get(file_id).save = false;
+    qDebug() << "Изменяем константы";
+    QObject::disconnect(contains, &QPlainTextEdit::textChanged, this, &Window::on_file_change);
 }
 
 Window::~Window() {};

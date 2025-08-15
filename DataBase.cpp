@@ -1,9 +1,8 @@
 #include "DataBase.h"
 
-
 DB::~DB()
 {
-    for (const auto& kv: storage)
+    for (const auto &kv : storage)
     {
         delete storage[kv.first];
         storage.erase(kv.first);
@@ -26,22 +25,21 @@ elem &DB::get(int idx)
     throw "Unknow index"; // поменять на нормальный класс исключений
 }
 
-
-
 void DB::del(int idx)
 {
     if (storage.count(idx))
         indices.push(idx);
-        delete storage[idx];
-        storage.erase(idx);
-        --size;
+    delete storage[idx];
+    storage.erase(idx);
+    --size;
 }
 
-int DB::add(elem* value)
+int DB::add(elem *value)
 {
     int new_idx = get_idx();
     storage[new_idx] = value;
     ++size;
+    keys.push_back(new_idx);
     return new_idx;
 }
 
@@ -128,3 +126,41 @@ bool greater_by_change(const elem &argv1, const elem &argv2)
 {
     return argv1.date_change > argv2.date_change;
 }
+
+std::list<int> &DB::get_key()
+{
+    return keys;
+}
+
+
+// void DB::save()
+// {
+//     std::ofstream output_file("data", std::ios_base::binary);
+//     std::ofstream keys("keys", std::ios_base::binary);
+//     keys.write((char*)&size, sizeof(int));
+//     for (auto i = storage.begin(); i != storage.end(); ++i)
+//     {
+//         keys.write((char*)&(i->first), sizeof(int));
+//         output_file.write((char*)i->second, sizeof(elem));
+//     }
+//     output_file.close();
+//     keys.close();
+// }
+
+// void DB::load()
+// {
+//     std::ifstream input_file("data", std::ios_base::binary);
+//     std::ifstream keys("keys", std::ios_base::binary);
+//     keys.read((char*)&size, sizeof(int));
+//     int new_key;
+//     for (int i = 0; i < size; ++i)
+//     {
+//         keys.read((char*)&new_key, sizeof(int));
+//         storage[new_key] = new elem;
+//         input_file.read((char*)storage[new_key], sizeof(elem));
+//     }
+//     input_file.close();
+//     keys.close();
+
+// }
+
